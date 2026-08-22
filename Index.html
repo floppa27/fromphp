@@ -482,24 +482,18 @@
       return;
     }
 
-    try {
-      fetch(form.action, { method: form.method, body: new FormData(form) }).catch(() => {});
-    } catch (err) { /* Entorno sin backend disponible: se ignora */ }
-
-    const nombre = form.NomApellidos.value.trim();
-    const cargo = form.Cargo.value.trim();
-
     mostrarPantalla(pantallaEnviando);
 
-    setTimeout(() => {
-      resumenPostulante.textContent = '';
-      const nombreFuerte = document.createElement('strong');
-      nombreFuerte.textContent = nombre;
-      const cargoFuerte = document.createElement('strong');
-      cargoFuerte.textContent = cargo;
-      resumenPostulante.append(nombreFuerte, ' — postulación para el cargo de ', cargoFuerte);
-      mostrarPantalla(pantallaExito);
-    }, 1600);
+    fetch(form.action, { method: form.method, body: new FormData(form) })
+      .then(respuesta => respuesta.text())
+      .then(textoPhp => {
+        resumenPostulante.innerHTML = textoPhp;
+        mostrarPantalla(pantallaExito);
+      })
+      .catch(() => {
+        resumenPostulante.textContent = 'No se pudo conectar con informacion.php. Verifica que estés ejecutando el proyecto desde un servidor con PHP (por ejemplo XAMPP o "php -S localhost:8000"), no abriendo el archivo directamente en el navegador.';
+        mostrarPantalla(pantallaExito);
+      });
   });
 
   btnMenuInicial.addEventListener('click', () => {
